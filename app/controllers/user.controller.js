@@ -10,9 +10,13 @@ module.exports = {
         }
         const {name, email, phone, password} = req.body;
 
-        return userService.getUser({email: email}).then((userData) => {
+        return userService.getUser({$or:[{email: email}, {phone:phone}]}).then((userData) => {
             if (userData) {
-                return Promise.reject({key: 'msg', msg: 'Email already exist!'});
+                let msg = userData.email === email
+                    ? error.EMAIL_EXISTS
+                    : error.PHONE_EXISTS;
+
+                return Promise.reject({ key: 'msg', msg });
             }
         }).then(() => {
             let data = {
@@ -21,6 +25,8 @@ module.exports = {
                 phone: phone,
                 password: password
             }
+
+
             return userService.addUser(data).then((result) => {
                 if (result) {
                     return res.json(response.JsonMsg(true, result, 'User added successfully!', 200));
