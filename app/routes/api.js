@@ -23,6 +23,11 @@ module.exports = (app, express) => {
     api.delete('/deleteUser/:id', (req, res) => {
         userController.deleteUser(req, res);
     });
+
+    api.post('/loginUser', (req, res) => {
+        userController.loginUser(req, res);
+    });
+
     return api;
 
 

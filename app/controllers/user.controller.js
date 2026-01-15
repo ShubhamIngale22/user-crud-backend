@@ -1,6 +1,7 @@
 const response = require('../utilities/api_handler');
 const error = require('../helpers/messages');
 const userService = require('../services/users');
+const bcrypt = require("bcrypt");
 
 module.exports = {
     addUser: (req, res) => {
@@ -153,4 +154,34 @@ module.exports = {
         });
     },
 
+
+    loginUser: (req, res) => {
+
+        if (!req.body || (!req.body.email && !req.body.phone) || !req.body.password) {
+            return res.json(response.JsonMsg(false, null, error.EMPTY_STRING, 404));
+        }
+        const {email, phone, password} = req.body;
+        return userService.getUser({$or:[email ? { email:email }: null ,phone ? {phone:phone}: null].filter(Boolean)})
+            .then((userData) => {
+                if (!userData) {
+                    return Promise.reject({ key: 'msg', msg: 'User not found!' });
+                }
+                return bcrypt.compare(password,userData.password)
+                    .then((isMatch) =>{
+                        if(!isMatch){
+                            return Promise.reject({ key: 'msg', msg: 'Invalid password!' });
+                        }
+                        userData = userData.toObject();
+                        delete userData.password;
+                        return res.json(response.JsonMsg(true,userData,'login successful',200));
+                    })
+
+            })
+            .catch((err) => {
+                if (err && err.key === 'msg') {
+                    return res.json(response.JsonMsg(false, null, err.msg, 404));
+                }
+                return res.json(response.JsonMsg(false, null, err.message, 404));
+            });
+    }
 }
