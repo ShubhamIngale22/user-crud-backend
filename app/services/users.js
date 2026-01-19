@@ -1,12 +1,14 @@
 const users = require('../models/User');
 
 module.exports = {
-    getUser: (query) => {
-        return users.findOne(query).then((data) => {
-            return Promise.resolve(data);
-        }).catch((err) => {
-            return Promise.reject(err);
-        });
+    getUser: (query, includePassword = false) => {
+        let q = users.findOne(query);
+        if (includePassword) {
+            q = q.select('+password');
+        }
+        return q
+            .then((data) => Promise.resolve(data))
+            .catch((err) => Promise.reject(err));
     },
 
     allUser: () => {
@@ -34,6 +36,29 @@ module.exports = {
         });
     },
 
+    updateUserWithSave: (query, updateData) => {
+        return users.findOne(query)
+            .then((user) => {
+                if (!user) {
+                    return Promise.resolve(null);
+                }
+
+                // update fields dynamically
+                Object.keys(updateData).forEach((key) => {
+                    user[key] = updateData[key];
+                });
+
+                // this triggers pre("save")
+                return user.save();
+            })
+            .then((savedUser) => {
+                return Promise.resolve(savedUser);
+            })
+            .catch((err) => {
+                return Promise.reject(err);
+            });
+    },
+
     deleteUser: (query) => {
         return users.findOneAndDelete(query).then((data) => {
             return Promise.resolve(data);
@@ -41,8 +66,5 @@ module.exports = {
             return Promise.reject(err);
         });
     }
-
-
-
 
 }

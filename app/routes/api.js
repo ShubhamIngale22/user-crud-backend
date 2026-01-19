@@ -1,8 +1,8 @@
 const userController = require('../controllers/user.controller');
+const verifyOtpMiddleware = require('../middlewares/verifyOtpMiddleware')
 
 module.exports = (app, express) => {
     let api = express.Router();
-
 
     api.post('/addUser', (req, res) => {
         userController.addUser(req, res);
@@ -28,7 +28,18 @@ module.exports = (app, express) => {
         userController.loginUser(req, res);
     });
 
-    return api;
+    api.post('/forgotPassword', (req, res) => {
+        userController.forgotPassword(req, res);
+    });
 
+    api.post('/verifyOtp', (req, res) => {
+        userController.verifyOtp(req, res);
+    });
+
+    api.post('/resetPassword',verifyOtpMiddleware, (req, res) => {
+        userController.resetPassword(req, res);
+    });
+
+    return api;
 
 }

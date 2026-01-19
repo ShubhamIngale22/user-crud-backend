@@ -2,6 +2,9 @@ const response = require('../utilities/api_handler');
 const error = require('../helpers/messages');
 const userService = require('../services/users');
 const bcrypt = require("bcrypt");
+const {updateUser} = require("../services/users");
+const otpHelper = require('../helpers/otp.helper');
+const passwordHelper = require('../helpers/password.helper');
 
 module.exports = {
     addUser: (req, res) => {
@@ -157,11 +160,12 @@ module.exports = {
 
     loginUser: (req, res) => {
 
-        if (!req.body || (!req.body.email && !req.body.phone) || !req.body.password) {
+        if (!req.body || !req.body.emailOrPhone || !req.body.password) {
             return res.json(response.JsonMsg(false, null, error.EMPTY_STRING, 404));
         }
-        const {email, phone, password} = req.body;
-        return userService.getUser({$or:[email ? { email:email }: null ,phone ? {phone:phone}: null].filter(Boolean)})
+        const {password, emailOrPhone} = req.body;
+        let query= {$or: [{email: emailOrPhone}, {phone: emailOrPhone}]};
+        return userService.getUser(query,true)
             .then((userData) => {
                 if (!userData) {
                     return Promise.reject({ key: 'msg', msg: 'User not found!' });
@@ -183,5 +187,123 @@ module.exports = {
                 }
                 return res.json(response.JsonMsg(false, null, err.message, 404));
             });
-    }
+    },
+
+
+    forgotPassword: (req, res) => {
+
+        if (!req.body || !req.body.emailOrPhone) {
+            return res.json(response.JsonMsg(false, null, error.EMPTY_STRING, 400));
+        }
+        const {emailOrPhone} = req.body;
+        let query ={$or:[{email:emailOrPhone},{phone:emailOrPhone}]};
+        return userService.getUser(query)
+            .then(async (userData) => {
+                if (!userData) {
+                    return Promise.reject({ key: 'msg', msg: 'User not found!' });
+                }
+                const otp = otpHelper.generateOtp();
+                const expiry = otpHelper.getOtpExpiry();
+
+                const hashedOtp = await otpHelper.hashOtp(otp);
+
+                let updateData = {
+                    resetOtp: hashedOtp,
+                    resetOtpExpire: expiry,
+                    isOtpVerified: false
+                };
+
+                return userService.updateUserWithSave(query,updateData)
+                    .then(()=>{
+                        console.log("Reset Password OTP :",otp);
+                        return res.json(response.JsonMsg(true,null,'OTP send successfully to your registered email/phone',200));
+
+                    });
+            })
+            .catch((err) => {
+                if (err && err.key === 'msg') {
+                    return res.json(response.JsonMsg(false, null, err.msg, 404));
+                }
+                return res.json(response.JsonMsg(false, null, err.message, 400));
+            });
+    },
+
+    verifyOtp: (req, res) => {
+
+        if (!req.body || !req.body.emailOrPhone || !req.body.otp) {
+            return res.json(response.JsonMsg(false, null, error.EMPTY_STRING, 400));
+        }
+
+        const { emailOrPhone, otp } = req.body;
+        let query = { $or: [{ email: emailOrPhone }, { phone: emailOrPhone }] };
+
+        return userService.getUser(query)
+            .then(async (userData) => {
+
+                if (!userData) {
+                    return Promise.reject({ key: 'msg', msg: 'User not found!' });
+                }
+
+                if (!userData.resetOtp) {
+                    return Promise.reject({ key: 'msg', msg: 'OTP not found!' });
+                }
+
+                const isMatch = await otpHelper.compareOtp(otp, userData.resetOtp);
+
+                if (!isMatch) {
+                    return Promise.reject({ key: 'msg', msg: 'Invalid OTP!' });
+                }
+                if (userData.resetOtpExpire < Date.now()) {
+                    return Promise.reject({ key: 'msg', msg: 'OTP expired!' });
+                }
+
+                let updateData = {
+                    isOtpVerified: true
+                };
+
+                return userService.updateUserWithSave(query, updateData)
+                    .then(() => {
+                        return res.json(response.JsonMsg(true, null, 'OTP verified successfully', 200));
+                    });
+            })
+            .catch((err) => {
+                if (err && err.key === 'msg') {
+                    return res.json(response.JsonMsg(false, null, err.msg, 400));
+                }
+                return res.json(response.JsonMsg(false, null, err.message, 400));
+            });
+    },
+
+    resetPassword: (req, res) => {
+
+        if (!req.body || !req.body.newPassword || !req.body.confirmPassword) {
+            return res.json(response.JsonMsg(false, null, error.EMPTY_STRING, 400));
+        }
+        const { newPassword, confirmPassword } = req.body;
+        if (newPassword !== confirmPassword) {
+            return res.json(response.JsonMsg(false, null, 'Confirm password is incorrect!', 400));
+        }
+        const userData = req.user;
+        let updateData = {
+            password: newPassword,
+            resetOtp: null,
+            resetOtpExpire: null,
+            isOtpVerified: false
+        };
+        return userService.updateUserWithSave({ _id: userData._id }, updateData)
+            .then((updatedUser) => {
+                if (!updatedUser) {
+                    return Promise.reject({ key: 'msg', msg: 'Unable to update password.' });
+                }
+                let userObj = updatedUser.toObject();
+                delete userObj.password;
+                return res.json(response.JsonMsg(true,userObj,'Password updated successfully!',200));
+            })
+            .catch((err) => {
+                if (err && err.key === 'msg') {
+                    return res.json(response.JsonMsg(false, null, err.msg, 400));
+                }
+                return res.json(response.JsonMsg(false, null, err.message, 400));
+            });
+        },
 }
