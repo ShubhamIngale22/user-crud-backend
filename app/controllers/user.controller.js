@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const otpHelper = require('../helpers/otp.helper');
 const dateHelper= require('../helpers/date.helper');
 const jwtHelper = require('../helpers/jwt.helper');
+const XLSX = require('xlsx');
 
 module.exports = {
     addUser: (req, res) => {
@@ -30,9 +31,10 @@ module.exports = {
                 password: password
             }
 
-
             return userService.addUser(data).then((result) => {
                 if (result) {
+                    let userData=result.toObject();
+                    delete userData.password;
                     return res.json(response.JsonMsg(true, result, 'User added successfully!', 200));
                 } else {
                     return Promise.reject({key: 'msg', msg: 'Unable to add user!'});
@@ -313,4 +315,28 @@ module.exports = {
                 return res.json(response.JsonMsg(false, null, err.message, 400));
             });
         },
+
+    uploadExcel: (req, res) => {
+        if (!req.file) {
+            return res.json(response.JsonMsg(false, null, 'No file uploaded!', 400));
+        }
+
+        try {
+            const filePath = req.file.path;
+            const workbook = XLSX.readFile(filePath);
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const data = XLSX.utils.sheet_to_json(sheet);
+            return res.json(response.JsonMsg(
+                true,
+                { totalRows: data.length, rows: data },
+                'Excel file processed successfully',
+                200
+            ));
+
+        } catch (err) {
+            return res.json(response.JsonMsg(false, null, err.message, 500));
+        }
+    },
+
 }

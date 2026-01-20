@@ -1,6 +1,7 @@
 const userController = require('../controllers/user.controller');
 const verifyOtpMiddleware = require('../middlewares/verifyOtpMiddleware');
 const authMiddleware=require('../middlewares/auth.middleware');
+const upload = require('../middlewares/upload.middleware');
 
 module.exports = (app, express) => {
     let api = express.Router();
@@ -37,6 +38,10 @@ module.exports = (app, express) => {
         userController.resetPassword(req, res);
     });
 
+    api.post('/uploadExcel', upload.single('file'), (req, res) => {
+        userController.uploadExcel(req, res);
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
@@ -44,5 +49,4 @@ module.exports = (app, express) => {
     });
 
     return api;
-
 }

@@ -20,7 +20,7 @@ module.exports = {
     },
 
     addUser: (data) => {
-        let user = new users(data);
+        let user= new users(data);
         return user.save().then((result) => {
             return Promise.resolve(result);
         }).catch((err) => {
