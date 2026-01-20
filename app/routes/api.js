@@ -1,15 +1,12 @@
 const userController = require('../controllers/user.controller');
-const verifyOtpMiddleware = require('../middlewares/verifyOtpMiddleware')
+const verifyOtpMiddleware = require('../middlewares/verifyOtpMiddleware');
+const authMiddleware=require('../middlewares/auth.middleware');
 
 module.exports = (app, express) => {
     let api = express.Router();
 
     api.post('/addUser', (req, res) => {
         userController.addUser(req, res);
-    });
-
-    api.get('/allUser', (req, res) => {
-        userController.allUser(req, res);
     });
 
     api.get('/getUser/:id', (req, res) => {
@@ -38,6 +35,12 @@ module.exports = (app, express) => {
 
     api.post('/resetPassword',verifyOtpMiddleware, (req, res) => {
         userController.resetPassword(req, res);
+    });
+
+    api.use(authMiddleware);
+
+    api.get('/allUser', (req, res) => {
+        userController.allUser(req, res);
     });
 
     return api;

@@ -2,9 +2,9 @@ const response = require('../utilities/api_handler');
 const error = require('../helpers/messages');
 const userService = require('../services/users');
 const bcrypt = require("bcrypt");
-const {updateUser} = require("../services/users");
 const otpHelper = require('../helpers/otp.helper');
-const passwordHelper = require('../helpers/password.helper');
+const dateHelper= require('../helpers/date.helper');
+const jwtHelper = require('../helpers/jwt.helper');
 
 module.exports = {
     addUser: (req, res) => {
@@ -175,17 +175,22 @@ module.exports = {
                         if(!isMatch){
                             return Promise.reject({ key: 'msg', msg: 'Invalid password!' });
                         }
+                        const token = jwtHelper.generateToken({
+                            userId: userData._id,
+                            email: userData.email,
+                            role: userData.role
+                        });
                         userData = userData.toObject();
                         delete userData.password;
-                        return res.json(response.JsonMsg(true,userData,'login successful',200));
+                        return res.json(response.JsonMsg(true,{ user: userData, token: token },'login successful',200));
                     })
 
             })
             .catch((err) => {
                 if (err && err.key === 'msg') {
-                    return res.json(response.JsonMsg(false, null, err.msg, 404));
+                    return res.json(response.JsonMsg(false, null, err.msg, 401));
                 }
-                return res.json(response.JsonMsg(false, null, err.message, 404));
+                return res.json(response.JsonMsg(false, null, err.message, 400));
             });
     },
 
@@ -203,7 +208,8 @@ module.exports = {
                     return Promise.reject({ key: 'msg', msg: 'User not found!' });
                 }
                 const otp = otpHelper.generateOtp();
-                const expiry = otpHelper.getOtpExpiry();
+                const expiry = dateHelper.addMinutes(10);
+                const expiryTime=dateHelper.formatIST(expiry);
 
                 const hashedOtp = await otpHelper.hashOtp(otp);
 
@@ -216,7 +222,8 @@ module.exports = {
                 return userService.updateUserWithSave(query,updateData)
                     .then(()=>{
                         console.log("Reset Password OTP :",otp);
-                        return res.json(response.JsonMsg(true,null,'OTP send successfully to your registered email/phone',200));
+                        console.log("OTP expires at (IST):", dateHelper.formatIST(expiry));
+                        return res.json(response.JsonMsg(true,{ otpExpiresAt: expiryTime },'OTP send successfully to your registered email/phone',200));
 
                     });
             })
@@ -253,7 +260,7 @@ module.exports = {
                 if (!isMatch) {
                     return Promise.reject({ key: 'msg', msg: 'Invalid OTP!' });
                 }
-                if (userData.resetOtpExpire < Date.now()) {
+                if (dateHelper.isExpired(userData.resetOtpExpire)) {
                     return Promise.reject({ key: 'msg', msg: 'OTP expired!' });
                 }
 

@@ -4,9 +4,9 @@ module.exports.generateOtp =() => {
     return Math.floor(100000 + Math.random()*900000).toString();
 };
 
-module.exports.getOtpExpiry =() => {
-    return Date.now() + 10 * 60 * 1000 ;
-};
+// module.exports.getOtpExpiry =() => {
+//     return Date.now() + 10 * 60 * 1000 ;
+// };
 
 
 module.exports.hashOtp = async (otp) => {
