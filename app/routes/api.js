@@ -38,14 +38,14 @@ module.exports = (app, express) => {
         userController.resetPassword(req, res);
     });
 
-    api.post('/uploadExcel', upload.single('file'), (req, res) => {
-        userController.uploadExcel(req, res);
-    });
-
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
         userController.allUser(req, res);
+    });
+
+    api.post('/uploadExcel', upload.single('file'), (req, res) => {
+        userController.uploadExcel(req, res);
     });
 
     return api;
