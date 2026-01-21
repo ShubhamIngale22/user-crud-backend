@@ -330,7 +330,7 @@ module.exports = {
             return res.json(response.JsonMsg(
                 true,
                 { totalRows: data.length, rows: data },
-                'Excel file processed successfully',
+                'Excel/csv file processed successfully',
                 200
             ));
 
