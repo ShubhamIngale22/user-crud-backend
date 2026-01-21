@@ -24,7 +24,7 @@ const fileFilter=(req,file,cb)=>{
     if(allowedTypes.includes(file.mimetype)){
         cb(null,true)
     }else{
-        cb(new Error("Only excel/csv files are allowed"),false);
+        cb(new Error("Only excel/csv files are allowed to upload"),false);
     }
 };
 
