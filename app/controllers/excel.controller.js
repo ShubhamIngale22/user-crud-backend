@@ -1,6 +1,8 @@
 const XLSX = require("xlsx");
 const ExcelRow = require("../models/ExcelRow");
 const response = require("../utilities/api_handler");
+const {v4:uuidv4}=require("uuid");
+const ExcelUpload = require("../models/ExcelUpload");
 
 exports.uploadExcel = async (req, res) => {
     try {
@@ -12,25 +14,44 @@ exports.uploadExcel = async (req, res) => {
         const workbook = XLSX.readFile(req.file.path);
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-
-        // Convert to JSON
         const rows = XLSX.utils.sheet_to_json(sheet);
+
+        const uploadId=uuidv4();
 
         if (!rows.length) {
             return res.json(response.JsonMsg(false, null, "Empty file", 400));
         }
 
+        await ExcelUpload.create({
+            uploadId,
+            fileName:req.file.originalname,
+            totalRows:rows.length
+        });
+
         // Store rows in MongoDB
         const formattedRows = rows.map((row) => ({
-            data: row,
+            uploadId,
+            data: row
         }));
-
         await ExcelRow.insertMany(formattedRows);
 
         return res.json(
-            response.JsonMsg(true, { totalRows: rows.length }, "Data stored successfully", 200)
+            response.JsonMsg(true, {uploadId }, "Data stored successfully", 200)
         );
     } catch (err) {
+        return res.json(response.JsonMsg(false, null, err.message, 500));
+    }
+};
+
+exports.getUploads= async (req,res)=>{
+    try{
+        const uploads= await ExcelUpload.find()
+            .sort({createdAt : -1})
+            .lean();
+
+        return res.json(response.JsonMsg(true,uploads, "Upload list fetched successfully", 200));
+
+    }catch (err) {
         return res.json(response.JsonMsg(false, null, err.message, 500));
     }
 };
@@ -46,4 +67,19 @@ exports.getExcelData = async (req, res) => {
         return res.json(response.JsonMsg(false, null, err.message, 500));
     }
 };
+
+exports.getRowsByUploadId = async (req, res) => {
+    try {
+        const {uploadId} =req.params;
+        const rows = await ExcelRow.find({uploadId}).lean();
+
+        return res.json(
+            response.JsonMsg(true, rows, "Data fetched successfully", 200)
+        );
+    } catch (err) {
+        return res.json(response.JsonMsg(false, null, err.message, 500));
+    }
+};
+
+
 

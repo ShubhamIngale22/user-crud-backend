@@ -39,18 +39,25 @@ module.exports = (app, express) => {
         userController.resetPassword(req, res);
     });
 
-    // api.post('/uploadExcel', upload.single('file'), (req, res) => {
-    //     userController.uploadExcel(req, res);
-    // });
-
     api.post('/uploadExcel', upload.single('file'), (req, res) => {
         excelController.uploadExcel(req, res).then(()=>{});
     });
-    // api.post("/uploadExcel", upload.single("file"), excelController.uploadExcel);
 
-    api.get('/displayExcel' ,(req, res) => {
-        excelController.getExcelData(req, res);
+    api.get('/excel/uploads',(req, res) => {
+        excelController.getUploads(req, res).then(()=>{});
     });
+
+    api.get('/excel/data/:uploadId',(req, res) => {
+        excelController.getRowsByUploadId(req, res).then(()=>{});
+    });
+
+    // api.get("/excel/uploads", excelController.getUploads);
+    // api.get("/excel/data/:uploadId", excelController.getRowsByUploadId);
+
+
+    // api.get('/displayExcel' ,(req, res) => {
+    //     excelController.getExcelData(req, res);
+    // });
     // api.get("/displayExcel", excelController.getExcelData);
 
     api.use(authMiddleware);
