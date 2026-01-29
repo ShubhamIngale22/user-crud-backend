@@ -2,6 +2,7 @@ const userController = require('../controllers/user.controller');
 const verifyOtpMiddleware = require('../middlewares/verifyOtpMiddleware');
 const authMiddleware=require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
+const excelController = require("../controllers/excel.controller");
 
 module.exports = (app, express) => {
     let api = express.Router();
@@ -38,14 +39,24 @@ module.exports = (app, express) => {
         userController.resetPassword(req, res);
     });
 
+    // api.post('/uploadExcel', upload.single('file'), (req, res) => {
+    //     userController.uploadExcel(req, res);
+    // });
+
+    api.post('/uploadExcel', upload.single('file'), (req, res) => {
+        excelController.uploadExcel(req, res).then(()=>{});
+    });
+    // api.post("/uploadExcel", upload.single("file"), excelController.uploadExcel);
+
+    api.get('/displayExcel' ,(req, res) => {
+        excelController.getExcelData(req, res);
+    });
+    // api.get("/displayExcel", excelController.getExcelData);
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
-        userController.allUser(req, res);
-    });
-
-    api.post('/uploadExcel', upload.single('file'), (req, res) => {
-        userController.uploadExcel(req, res);
+        userController.allUser(req, res).then(()=>{});
     });
 
     return api;
