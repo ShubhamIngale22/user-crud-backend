@@ -51,15 +51,6 @@ module.exports = (app, express) => {
         excelController.getRowsByUploadId(req, res).then(()=>{});
     });
 
-    // api.get("/excel/uploads", excelController.getUploads);
-    // api.get("/excel/data/:uploadId", excelController.getRowsByUploadId);
-
-
-    // api.get('/displayExcel' ,(req, res) => {
-    //     excelController.getExcelData(req, res);
-    // });
-    // api.get("/displayExcel", excelController.getExcelData);
-
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
