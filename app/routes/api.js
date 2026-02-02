@@ -51,6 +51,18 @@ module.exports = (app, express) => {
         excelController.getRowsByUploadId(req, res).then(()=>{});
     });
 
+    api.get('/topDealers/:uploadId',(req, res) => {
+        excelController.top5Dealers(req, res);
+    });
+
+    api.get('/topZones/:uploadId',(req, res) => {
+        excelController.top5Zones(req, res);
+    });
+
+    api.get('/topRegion/:uploadId',(req, res) => {
+        excelController.top5Regions(req, res);
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {

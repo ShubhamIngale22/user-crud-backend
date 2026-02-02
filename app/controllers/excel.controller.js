@@ -3,6 +3,8 @@ const ExcelRow = require("../models/ExcelRow");
 const response = require("../utilities/api_handler");
 const {v4:uuidv4}=require("uuid");
 const ExcelUpload = require("../models/ExcelUpload");
+const chartService=require("../services/charts");
+const error = require("../helpers/messages");
 
 exports.uploadExcel = async (req, res) => {
     try {
@@ -80,6 +82,64 @@ exports.getRowsByUploadId = async (req, res) => {
         return res.json(response.JsonMsg(false, null, err.message, 500));
     }
 };
+
+exports.top5Dealers = (req, res) => {
+    const { uploadId } = req.params;
+
+    chartService.getTop5Dealers(uploadId)
+        .then(result => {
+            const labels = result.map(item => item._id);
+            const data = result.map(item => item.count);
+
+            return res.json(
+                response.JsonMsg(true, { labels, data }, "Top 5 dealers fetched", 200)
+            );
+        })
+        .catch(err => {
+            return res.json(
+                response.JsonMsg(false, null, err.message, 500)
+            );
+        });
+};
+
+exports.top5Zones = (req, res) => {
+    const { uploadId } = req.params;
+
+    chartService.getTop5Zones(uploadId)
+        .then(result => {
+            const labels = result.map(item => item._id);
+            const data = result.map(item => item.count);
+
+            return res.json(
+                response.JsonMsg(true, { labels, data }, "Top 5 zones fetched", 200)
+            );
+        })
+        .catch(err => {
+            return res.json(
+                response.JsonMsg(false, null, err.message, 500)
+            );
+        });
+};
+
+exports.top5Regions = (req, res) => {
+    const { uploadId } = req.params;
+
+    chartService.getTop5Regions(uploadId)
+        .then(result => {
+            const labels = result.map(item => item._id);
+            const data = result.map(item => item.count);
+
+            return res.json(
+                response.JsonMsg(true, { labels, data }, "Top 5 regions fetched", 200)
+            );
+        })
+        .catch(err => {
+            return res.json(
+                response.JsonMsg(false, null, err.message, 500)
+            );
+        });
+};
+
 
 
 
