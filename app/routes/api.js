@@ -59,7 +59,7 @@ module.exports = (app, express) => {
         excelController.top5Zones(req, res);
     });
 
-    api.get('/topRegion/:uploadId',(req, res) => {
+    api.get('/topRegions/:uploadId',(req, res) => {
         excelController.top5Regions(req, res);
     });
 
