@@ -68,6 +68,10 @@ module.exports = (app, express) => {
         dashboardController.dealerInstallationTable(req, res).then(()=>{});
     });
 
+    api.get('/zone-installations',(req, res) => {
+        dashboardController.zoneDealerInstallationsPie(req, res).then(()=>{});
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
