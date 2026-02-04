@@ -3,6 +3,7 @@ const verifyOtpMiddleware = require('../middlewares/verifyOtpMiddleware');
 const authMiddleware=require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
 const excelController = require("../controllers/excel.controller");
+const dashboardController=require("../controllers/dashboard.controller");
 
 module.exports = (app, express) => {
     let api = express.Router();
@@ -63,11 +64,14 @@ module.exports = (app, express) => {
         excelController.top5Regions(req, res);
     });
 
+    api.get('/installationTable',(req, res) => {
+        dashboardController.dealerInstallationTable(req, res).then(()=>{});
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
         userController.allUser(req, res).then(()=>{});
     });
-
     return api;
 }
