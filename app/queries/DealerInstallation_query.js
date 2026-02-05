@@ -1,42 +1,58 @@
-const DealerInstallations=require("../models/DealerInstallations");
+const DealerInstallations = require("../models/DealerInstallations");
+const moment = require("moment");
 
-const dealerInstallationsQuery=()=>{
+const dealerInstallationsQuery = () => {
+
+    const yesterdayStart = moment().subtract(1, "day").startOf("day").toDate();
+    const yesterdayEnd   = moment().subtract(1, "day").endOf("day").toDate();
+
+    const lastMonthStart = moment().subtract(1, "month").startOf("month").toDate();
+    const lastMonthEnd   = moment().subtract(1, "month").endOf("month").toDate();
+
+    const lastYearStart = moment().subtract(1, "year").startOf("year").toDate();
+    const lastYearEnd   = moment().subtract(1, "year").endOf("year").toDate();
+
     return DealerInstallations.aggregate([
         {
             $facet: {
-                last24Hours: [
+                yesterday: [
                     {
                         $match: {
                             installationDate: {
-                                $gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
+                                $gte: yesterdayStart,
+                                $lte: yesterdayEnd
                             }
                         }
                     },
-                    {$count: "count"}
+                    { $count: "count" }
                 ],
-                last1Month: [
+
+                lastMonth: [
                     {
                         $match: {
                             installationDate: {
-                                $gte: new Date(new Date().setMonth(new Date().getMonth() - 1))
+                                $gte: lastMonthStart,
+                                $lte: lastMonthEnd
                             }
                         }
                     },
-                    {$count: "count"}
+                    { $count: "count" }
                 ],
-                last1Year: [
+
+                lastYear: [
                     {
                         $match: {
                             installationDate: {
-                                $gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+                                $gte: lastYearStart,
+                                $lte: lastYearEnd
                             }
                         }
                     },
-                    {$count: "count"}
+                    { $count: "count" }
                 ]
             }
         }
-    ])
+    ]);
 };
 
-module.exports= dealerInstallationsQuery;
+module.exports = dealerInstallationsQuery;

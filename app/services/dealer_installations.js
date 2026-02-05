@@ -1,30 +1,33 @@
 const dealerInstallationsQuery=require("../queries/DealerInstallation_query");
-const zoneDealerInstallationsQuery=require("../queries/zone_dealer_installation_query")
+const zoneDealerInstallationsQuery=require("../queries/zone_dealer_installation_query");
+const moment=require("moment");
 
 module.exports= {
     totalDealerInstallations: () => {
         return dealerInstallationsQuery().then(result => {
             const r = result[0] || {};
             return {
-                last24Hours: r.last24Hours?.[0]?.count || 0,
-                last1Month: r.last1Month?.[0]?.count || 0,
-                last1Year: r.last1Year?.[0]?.count || 0
-            };
+                yesterday: r.yesterday?.[0]?.count || 0,
+                lastMonth: r.lastMonth?.[0]?.count || 0,
+                lastYear: r.lastYear?.[0]?.count || 0
+            }
         });
     },
 
-    ZoneDealerInstallations: (type="monthly") => {
-        let startDate=new Date();
+    ZoneDealerInstallations: (type = "monthly") => {
 
-        if(type==="yearly"){
-            startDate.setFullYear(startDate.getFullYear()-1);
-        }else{
-            startDate.setMonth(startDate.getMonth()-1);
+        let startDate, endDate;
+
+        if (type === "yearly") {
+            startDate = moment().subtract(1, "year").startOf("year").toDate();
+            endDate   = moment().subtract(1, "year").endOf("year").toDate();
+        } else {
+            startDate = moment().subtract(1, "month").startOf("month").toDate();
+            endDate   = moment().subtract(1, "month").endOf("month").toDate();
         }
-        
-        return zoneDealerInstallationsQuery(startDate).then(result => {
-            return result;
-        });
+
+        return zoneDealerInstallationsQuery(startDate, endDate)
+            .then(result => result);
     }
 }
 
