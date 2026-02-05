@@ -72,7 +72,7 @@ module.exports = (app, express) => {
         dashboardController.zoneDealerInstallationsPie(req, res).then(()=>{});
     });
 
-    api.get('/installations-Line-Chart',(req, res) => {
+    api.get('/installationsLineChart',(req, res) => {
         dashboardController.DealerInstallationsLineChart(req, res).then(()=>{});
     });
 
@@ -82,6 +82,10 @@ module.exports = (app, express) => {
 
     api.get('/top5DealerTable',(req, res) => {
         dashboardController.top5DealerInstallationsTable(req, res).then(()=>{});
+    });
+
+    api.get('/top5MakeModelTable',(req, res) => {
+        dashboardController.top5MakeModelTable(req, res).then(()=>{});
     });
 
     api.use(authMiddleware);
