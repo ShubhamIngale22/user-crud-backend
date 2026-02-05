@@ -80,6 +80,10 @@ module.exports = (app, express) => {
         dashboardController.top5regionsTable(req, res).then(()=>{});
     });
 
+    api.get('/top5DealerTable',(req, res) => {
+        dashboardController.top5DealerInstallationsTable(req, res).then(()=>{});
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
