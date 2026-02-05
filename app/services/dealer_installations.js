@@ -2,6 +2,7 @@ const dealerInstallationsQuery=require("../queries/DealerInstallation_query");
 const zoneDealerInstallationsQuery=require("../queries/zone_dealer_installation_query");
 const dealerInstallationsLineQuery=require("../queries/dealerInstallation_line_query");
 const top5regionsQuery=require("../queries/top5regions_query");
+const top5DealerInstallationsQuery=require("../queries/top5dealerInstallation_query");
 const moment=require("moment");
 
 module.exports= {
@@ -50,8 +51,13 @@ module.exports= {
             .then(result => result);
     },
 
-    top5regions: (type) => {
+    top5regions: () => {
         return top5regionsQuery()
+            .then(result => result);
+    },
+
+    top5DealerInstallations: () => {
+        return top5DealerInstallationsQuery()
             .then(result => result);
     }
 }
