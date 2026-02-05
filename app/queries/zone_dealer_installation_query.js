@@ -1,10 +1,10 @@
 const DealerInstallations=require("../models/DealerInstallations");
 
-const zoneDealerInstallationsQuery=(startDate)=>{
+const zoneDealerInstallationsQuery=(startDate,endDate)=>{
     return DealerInstallations.aggregate([
         {
             $match:{
-                installationDate:{$gte:startDate}
+                installationDate:{$gte:startDate , $lte:endDate}
             }
         },
         {
