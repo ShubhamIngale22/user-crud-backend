@@ -18,6 +18,13 @@ const top5regionsQuery = () => {
         },
         {
             $limit:5
+        },
+        {
+            $project: {
+                _id: 0,
+                regionName: "$_id",
+                count: 1
+            }
         }
 
     ])

@@ -18,6 +18,13 @@ const top5DealerInstallationsQuery = () => {
         },
         {
             $limit:5
+        },
+        {
+            $project:{
+                _id:0,
+                dealerShopName:"$_id",
+                count:1
+            }
         }
 
     ])
