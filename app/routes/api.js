@@ -76,6 +76,10 @@ module.exports = (app, express) => {
         dashboardController.DealerInstallationsLineChart(req, res).then(()=>{});
     });
 
+    api.get('/top5regionsTable',(req, res) => {
+        dashboardController.top5regionsTable(req, res).then(()=>{});
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
