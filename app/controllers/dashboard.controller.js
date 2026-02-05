@@ -40,7 +40,7 @@ module.exports = {
     top5regionsTable: (req, res) => {
 
         return dealerInstallService.top5regions().then((data)=>{
-            return res.json(response.JsonMsg(true,data, "Dealer Installations Data fot top 5 regions", 200));
+            return res.json(response.JsonMsg(true,data, "Dealer Installations Data for top 5 regions", 200));
         }).catch((err)=>{
             console.error(err);
             return res.json(response.JsonMsg(false, null , "Failed to fetch data", 500));
@@ -55,5 +55,16 @@ module.exports = {
             console.error(err);
             return res.json(response.JsonMsg(false, null , "Failed to fetch data", 500));
         })
+    },
+
+    top5MakeModelTable: (req, res) => {
+
+        return dealerInstallService.top5MakeModel().then((data)=>{
+            return res.json(response.JsonMsg(true,data, "Dealer Installations Data for top 5 regions", 200));
+        }).catch((err)=>{
+            console.error(err);
+            return res.json(response.JsonMsg(false, null , "Failed to fetch data", 500));
+        })
     }
+
 }
