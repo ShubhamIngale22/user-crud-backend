@@ -72,6 +72,10 @@ module.exports = (app, express) => {
         dashboardController.zoneDealerInstallationsPie(req, res).then(()=>{});
     });
 
+    api.get('/installations-Line-Chart',(req, res) => {
+        dashboardController.DealerInstallationsLineChart(req, res).then(()=>{});
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
