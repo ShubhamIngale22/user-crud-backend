@@ -88,6 +88,10 @@ module.exports = (app, express) => {
         dashboardController.top5MakeModelTable(req, res).then(()=>{});
     });
 
+    api.get('/top5ZonesTable',(req, res) => {
+        dashboardController.top5ZonesTable(req, res).then(()=>{});
+    });
+
     api.use(authMiddleware);
 
     api.get('/allUser', (req, res) => {
