@@ -65,6 +65,16 @@ module.exports = {
             console.error(err);
             return res.json(response.JsonMsg(false, null , "Failed to fetch data", 500));
         })
+    },
+
+    top5ZonesTable: (req, res) => {
+
+        return dealerInstallService.top5Zones().then((data)=>{
+            return res.json(response.JsonMsg(true,data, "Dealer Installations Data for top 5 zones", 200));
+        }).catch((err)=>{
+            console.error(err);
+            return res.json(response.JsonMsg(false, null , "Failed to fetch data", 500));
+        })
     }
 
 }

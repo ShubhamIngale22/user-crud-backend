@@ -1,9 +1,10 @@
-const dealerInstallationsQuery=require("../queries/DealerInstallation_query");
+const dealerInstallationsQuery=require("../queries/dealerInstallation_query");
 const zoneDealerInstallationsQuery=require("../queries/zone_dealer_installation_query");
 const dealerInstallationsLineQuery=require("../queries/dealerInstallation_line_query");
 const top5regionsQuery=require("../queries/top5regions_query");
 const top5DealerInstallationsQuery=require("../queries/top5dealerInstallation_query");
 const top5MakeModelQuery=require("../queries/top5MakeModel_query");
+const top5ZonesQuery=require("../queries/top5zones_query");
 const moment=require("moment");
 
 module.exports= {
@@ -65,6 +66,11 @@ module.exports= {
     top5MakeModel: () => {
         return top5MakeModelQuery()
             .then(result => result);
+    },
+
+    top5Zones:() => {
+        return top5ZonesQuery()
+            .then(result =>result)
     }
 }
 

@@ -26,8 +26,8 @@ const top5MakeModelQuery= ()=>{
         {
             $project:{
                 _id:0,
-                Make:"$_id.make",
-                Model:"$_id.model",
+                make:"$_id.make",
+                model:"$_id.model",
                 count:1
             }
         }
