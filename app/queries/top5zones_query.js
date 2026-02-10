@@ -26,8 +26,6 @@ const top5zonesQuery = () => {
                 count: 1
             }
         }
-
     ])
 }
-
 module.exports = top5zonesQuery;
