@@ -16,7 +16,10 @@ module.exports= {
                 lastMonth: r.lastMonth?.[0]?.count || 0,
                 lastYear: r.lastYear?.[0]?.count || 0
             }
-        });
+        }).catch(err=>{
+            console.error("totalDealerInstallations service error is :",err);
+            throw err;
+        })
     },
 
     ZoneDealerInstallations: (type = "monthly") => {
@@ -30,8 +33,12 @@ module.exports= {
             startDate = moment().subtract(1, "month").startOf("month").toDate();
             endDate   = moment().subtract(1, "month").endOf("month").toDate();
         }
-        return zoneDealerInstallationsQuery(startDate, endDate)
-            .then(result => result);
+        return zoneDealerInstallationsQuery(startDate, endDate).then(result =>{
+            return result ;
+        }).catch(err=>{
+            console.error("ZoneDealerInstallations service error is :",err);
+            throw err;
+        })
     },
 
     DealerInstallationsLine: (type) => {
@@ -49,29 +56,50 @@ module.exports= {
             startDate = moment().subtract(7, "day").toDate();
             format= "%Y-%m-%d";
         }
-        return dealerInstallationsLineQuery(startDate,format)
-            .then(result => result);
+        return dealerInstallationsLineQuery(startDate,format).then(result =>{
+            return result ;
+        }).catch(err=>{
+            console.error("DealerInstallationsLine service error is :",err);
+            throw err;
+        })
     },
 
     top5regions: () => {
-        return top5regionsQuery()
-            .then(result => result);
+        return top5regionsQuery().then(result =>{
+            return result ;
+        }).catch(err=>{
+            console.error("top5regions service error is :",err);
+            throw err;
+        })
     },
 
     top5DealerInstallations: () => {
-        return top5DealerInstallationsQuery()
-            .then(result => result);
+        return top5DealerInstallationsQuery().then(result =>{
+            return result;
+        }).catch(err=>{
+            console.error(" top5DealerInstallations Service error is :",err);
+            throw err;
+        })
     },
 
     top5MakeModel: () => {
-        return top5MakeModelQuery()
-            .then(result => result);
+        return top5MakeModelQuery().then(result =>{
+            return result;
+        }).catch(err=>{
+            console.error(" top5MakeModel Service error is :",err);
+            throw err;
+        })
     },
 
-    top5Zones:() => {
-        return top5ZonesQuery()
-            .then(result =>result)
-    }
+    top5Zones: () => {
+        return top5ZonesQuery().then(result =>{
+            return result;
+        }).catch(err=>{
+            console.error(" top5Zones Service error is :",err);
+            throw err;
+        })
+    },
+
 }
 
 
